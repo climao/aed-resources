@@ -1,31 +1,32 @@
-"""Experimental evaluation of an algorithm running time.
+"""Avaliação experimental do tempo de execução de um algoritmo.
 
-This is a very simple module that shows a possible way of performing an experimental analysis of the running
-time of an algorithm for different input sizes.
+Este é um módulo muito simples que demonstra uma possível forma de analisar experimentalmente o tempo de
+execução de um algoritmo para diferentes dimensões dos dados de entrada.
 
-Important notes:
-    * The specified algorithm receives a single argument: a list of numbers.
+Notas importantes:
+    * O algoritmo especificado recebe um único parâmetro: uma lista de números.
 
-    * If your algorithm requires further arguments, you should specify an intermediate function that will be called
-      with a list of numbers. Than, this function can call the algorithm function with all the necessary parameters.
+    * Se o algoritmo a avaliar necessita de mais parâmetros, deve especificar uma função intermédia que será invocada
+      com uma lista de números e este poderá depois invocar o algortimo a avaliar com os parâmetros necessários.
 
-    * For eficiency, the lists of random numbers with each of the specified lengths, are slices of the larger list.
-      You should take this into consideration when analysing the results.
+    * Por uma questão de eficiência, as listas de números com cada das dimensões especificadas são slices da lista
+      de maior dimensão. Deve ter isto em atenção quando analisar os resultados.
 
-    * By default the number lists can have repetitions. You can use the argument can_repeat=False to generate lists
-      whithout repetitions.
+    * Por defeito, as listas de números podem conter repetições. Pode usar o parâmetro can_repeat=False para gerar
+      listas sem números repetidos.
 
-    * If you execute this module it will run an example, analysing thw simple algorithms.
+    * Se este módulo for executado diretamente realizará a avaliação de dois algoritmos simples como exemplo.
 
-    * The graphic with the result of the algorithm analysis will be shown in a web page using your default browser.
+    * O gráfico com o resultado da avaliação do algoritmo será mostrado numa página Web usando o seu browser
+      por defeito.
 
 Author:
-    CJL - 2022-10-04
+    Carlos Limão - 2022-11-01
 
 License:
     MIT License
 
-    Copyright (c) 2022 CJL
+    Copyright (c) 2022 Carlos Limão
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -53,57 +54,58 @@ import pandas as pd
 import locale
 
 
-def profile_algorithm(algorithm, input_sizes, algorithm_name="Nome do Algoritmo", can_repeat=True,
+def profile_algorithm(algorithm, input_sizes, algorithm_name="Nome do Algoritmo", can_repeat=True, should_sort=False,
                       x_axis_label="Dimensão da Lista", y_axis_label="Tempo de Execução"):
     """
-    This function measures the running time of an algorithm for a set of input lists with different lengths.
+    Esta função mede o tempo de execução de um algoritmo para um conjunto de dads de entrada com diferentes dimensões.
 
-    :param algorithm: Function whith the algorithm to evaluate. Called with a list of numbers for each length in input_sizes.
+    :param algorithm: Nome da função a avaliar. Chamada com uma lista de números de cada uma das dimensões em input_sizes.
     :type  algorithm: function
-    :param input_sizes: List of input legths with which to call the algorithm (used in the secified order)
+    :param input_sizes: Lista de dimensões da lista que será passada ao algoritmo (são usadas por ordem.)
     :type  input_sizes: list
-    :param algorithm_name: Name that will be used to describe the algorithm in the graph title.
-    :param can_repeat: Whether the number lists used to call the algorithm can have repetitions, or not.
-    :param x_axis_label: X-axis label ('Dimensão da Lista', by default).
-    :param y_axis_label: Y-axis label ('Tempo de Execução', by default).
-    :return: Execution times, in seconds, for each of the lengths specified in input_sizes.
+    :param algorithm_name: Nome a usar para descrever o algoritmo no título do gráfico.
+    :param can_repeat: Indica se podem existir repetições nas listas de números a usar para invocar o algoritmo.
+    :param should_sort: Indica se a lista a usar para invocar o algoritmo deve ser ou não ordenada.
+    :param x_axis_label: Nome do eixo dos x (por defeito 'Dimensão da Lista').
+    :param y_axis_label: Nome do eixo dos y (por defeito 'Tempo de Execução').
+    :return: Os tempos de execução, em segundos, para cada uma das dimensões indicadas no array input_sizes.
     """
-    
-    # List to store running times for each input length.
+    # Lista onde vamos guardar os tempos de execução para cada execução do algoritmo.
     times = []
 
     print(f"A avaliar algoritmo '{algorithm.__name__}'.")
     print(f"A gerar lista aleatória de {input_sizes[-1]:n} números, {'com' if can_repeat else 'sem'} repetições...", end=' ')
-    
-    # Generate the bigger list. The smaller ones will be slices of this one.
+    # Gerar a maior lista pretendida. As mais pequenas serão depois geradas a partir desta.
     if (not can_repeat):
-        fulllist = random.sample(range(1, input_sizes[-1] + 1), input_sizes[-1])        # No repetitions (slower)
+        fulllist = random.sample(range(1, input_sizes[-1] + 1), input_sizes[-1])        # gera lista sem repetições (mais lento)
     else:
-        fulllist = random.choices(range(1, input_sizes[-1] + 1), k=input_sizes[-1], )   # With repetitions
+        fulllist = random.choices(range(1, input_sizes[-1] + 1), k=input_sizes[-1], )   # gera lista com eventuais repetições
     print("OK")
 
-    # Run the specified algorithm with a list of numbers for each of the lengths specified in 'input_sizes'.
+    # Ordenar a lista se isso foi solicitado
+    if should_sort:
+        fulllist = sorted(fulllist)
+
+    # Executar o algoritmo especificado com lista de números com cada uma das dimensões indicadas em 'input_sizes'.
     for n in input_sizes:
-        # Use a sub-list with the specified length.
+        # Usar sublista com dimensão especiificada
         randomlist = fulllist[:n]
 
         print(f"A invocar '{algorithm.__name__}' com lista de dimensão {n:n}...", end=" ")
-        
-        # Measure execution time.
+        # Medir o tempo de execução do nosso algoritmo quando executa com a lista de números gerada antes.
         start = timeit.default_timer()
         algorithm(randomlist)
         stop = timeit.default_timer()
         print(f"OK ({round(stop - start, 4)} seg.)")
 
-        # Store running time in 'times' list.
+        # Guardar o tempo de execução na lista 'times'
         times.append(stop - start)
 
-    # Use pandas to generate a table (DataFrame) with data to include in the graph.
-    
-    # 'input_sizes' in x-axis, and 'times' in y-axis.
+    # Usar o pandas para gerar uma tabela (DataFrame) com os dados a mostrar no gráfico.
+    # 'input_sizes' no eixo dos x, e 'times' no eixo dos y.
     df = pd.DataFrame(dict(n=input_sizes, time=times))
 
-    # Use plotty to show the graph of running time as a function of n.
+    # Usar o plotty para mostrar o gráfico do tempo de execução em função do n.
     fig = px.scatter(df, y="time", x="n",
                      title=algorithm_name,
                      labels={"n": x_axis_label, "time": y_axis_label})
@@ -113,11 +115,11 @@ def profile_algorithm(algorithm, input_sizes, algorithm_name="Nome do Algoritmo"
     return times
 
 
-# Just to make sure we have a dot as the thousands separator.
+# Importante para não termos virgula, mas sim ponto, como separador de milhares.
 locale.setlocale(locale.LC_ALL, 'pt')
 
 if __name__ == '__main__':
-    # Number list's lengths to use when calling algorithm.
+    # Dimensões das listas de números a usar para invocar o algoritmo especificado.
     ns = [1000000, 2000000, 3000000, 4000000, 5000000, 6000000, 7000000, 8000000, 9000000,
           10000000, 11000000, 12000000, 13000000, 14000000, 15000000, 16000000, 17000000, 18000000, 19000000,
           #20000000, 21000000, 22000000, 23000000, 24000000, 25000000, 26000000, 27000000, 28000000, 29000000,
@@ -125,8 +127,7 @@ if __name__ == '__main__':
          ]
 
     #
-    # An intermediate function to show how to evaluate an algorithm that needs more parameters, or 
-    # cannot be called directly for some reason.
+    # Uma função intermédia apenas para mostrar como avaliar um algoritmo que não pode ser invocado diretamente.
     #
     def search_list(lst):
         for i in range(len(lst)):
@@ -135,7 +136,7 @@ if __name__ == '__main__':
         return -1
 
     #
-    # You can evaluate more than one algorithm. Thow graphs (in two different pages) will be shown.
+    # Avaliação de dois algoritmos. Gera duas páginas Web distintas.
     #
     profile_algorithm(sorted, ns, "Ordenação de uma lista com builtin sorted().", False)
     profile_algorithm(search_list, ns, "Pesquisa numa lista com ciclo 'for'.", False)

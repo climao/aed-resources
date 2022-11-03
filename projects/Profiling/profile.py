@@ -21,7 +21,7 @@ Notas importantes:
       por defeito.
 
 Author:
-    Carlos Limão - 2022-10-04
+    Carlos Limão - 2022-11-01
 
 License:
     MIT License

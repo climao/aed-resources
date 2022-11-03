@@ -21,7 +21,7 @@ Notas importantes:
       por defeito.
 
 Author:
-    Carlos Limão - 2022-10-04
+    Carlos Limão - 2022-11-01
 
 License:
     MIT License
@@ -54,7 +54,7 @@ import pandas as pd
 import locale
 
 
-def profile_algorithm(algorithm, input_sizes, algorithm_name="Nome do Algoritmo", can_repeat=True,
+def profile_algorithm(algorithm, input_sizes, algorithm_name="Nome do Algoritmo", can_repeat=True, should_sort=False,
                       x_axis_label="Dimensão da Lista", y_axis_label="Tempo de Execução"):
     """
     Esta função mede o tempo de execução de um algoritmo para um conjunto de dads de entrada com diferentes dimensões.
@@ -65,6 +65,7 @@ def profile_algorithm(algorithm, input_sizes, algorithm_name="Nome do Algoritmo"
     :type  input_sizes: list
     :param algorithm_name: Nome a usar para descrever o algoritmo no título do gráfico.
     :param can_repeat: Indica se podem existir repetições nas listas de números a usar para invocar o algoritmo.
+    :param should_sort: Indica se a lista a usar para invocar o algoritmo deve ser ou não ordenada.
     :param x_axis_label: Nome do eixo dos x (por defeito 'Dimensão da Lista').
     :param y_axis_label: Nome do eixo dos y (por defeito 'Tempo de Execução').
     :return: Os tempos de execução, em segundos, para cada uma das dimensões indicadas no array input_sizes.
@@ -80,6 +81,10 @@ def profile_algorithm(algorithm, input_sizes, algorithm_name="Nome do Algoritmo"
     else:
         fulllist = random.choices(range(1, input_sizes[-1] + 1), k=input_sizes[-1], )   # gera lista com eventuais repetições
     print("OK")
+
+    # Ordenar a lista se isso foi solicitado
+    if should_sort:
+        fulllist = sorted(fulllist)
 
     # Executar o algoritmo especificado com lista de números com cada uma das dimensões indicadas em 'input_sizes'.
     for n in input_sizes:

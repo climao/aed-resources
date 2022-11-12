@@ -21,7 +21,7 @@ Notas importantes:
       por defeito.
 
 Author:
-    Carlos Limão - 2022-11-01
+    Carlos Limão - 2022-11-04
 
 License:
     MIT License
@@ -54,7 +54,9 @@ import pandas as pd
 import locale
 
 
-def profile_algorithm(algorithm, input_sizes, algorithm_name="Nome do Algoritmo", can_repeat=True, should_sort=False,
+def profile_algorithm(algorithm, input_sizes, algorithm_name="Nome do Algoritmo",
+                      can_repeat=True, should_sort=False, adjust_for_length=False, use_number_list = True,
+                      setup=None,
                       x_axis_label="Dimensão da Lista", y_axis_label="Tempo de Execução"):
     """
     Esta função mede o tempo de execução de um algoritmo para um conjunto de dads de entrada com diferentes dimensões.
@@ -66,6 +68,10 @@ def profile_algorithm(algorithm, input_sizes, algorithm_name="Nome do Algoritmo"
     :param algorithm_name: Nome a usar para descrever o algoritmo no título do gráfico.
     :param can_repeat: Indica se podem existir repetições nas listas de números a usar para invocar o algoritmo.
     :param should_sort: Indica se a lista a usar para invocar o algoritmo deve ser ou não ordenada.
+    :param adjust_for_length: Se True o tempo final é ajustado para refletir o tempo de execução que a operação
+                              demoraria sobre a lista mais pequena.
+    :param use_number_list: Se True usa listas de números para chamar o algoritmo a avaliar.
+    :param setup: Function to be called before each algorithm invocation.
     :param x_axis_label: Nome do eixo dos x (por defeito 'Dimensão da Lista').
     :param y_axis_label: Nome do eixo dos y (por defeito 'Tempo de Execução').
     :return: Os tempos de execução, em segundos, para cada uma das dimensões indicadas no array input_sizes.
@@ -74,32 +80,47 @@ def profile_algorithm(algorithm, input_sizes, algorithm_name="Nome do Algoritmo"
     times = []
 
     print(f"A avaliar algoritmo '{algorithm.__name__}'.")
-    print(f"A gerar lista aleatória de {input_sizes[-1]:n} números, {'com' if can_repeat else 'sem'} repetições...", end=' ')
-    # Gerar a maior lista pretendida. As mais pequenas serão depois geradas a partir desta.
-    if (not can_repeat):
-        fulllist = random.sample(range(1, input_sizes[-1] + 1), input_sizes[-1])        # gera lista sem repetições (mais lento)
-    else:
-        fulllist = random.choices(range(1, input_sizes[-1] + 1), k=input_sizes[-1], )   # gera lista com eventuais repetições
-    print("OK")
 
-    # Ordenar a lista se isso foi solicitado
-    if should_sort:
-        fulllist = sorted(fulllist)
+    if use_number_list:
+        print(f"A gerar lista aleatória de {input_sizes[-1]:n} números, {'com' if can_repeat else 'sem'} repetições...", end=' ')
+        # Gerar a maior lista pretendida. As mais pequenas serão depois geradas a partir desta.
+        if (not can_repeat):
+            fulllist = random.sample(range(1, input_sizes[-1] + 1), input_sizes[-1])        # gera lista sem repetições (mais lento)
+        else:
+            fulllist = random.choices(range(1, input_sizes[-1] + 1), k=input_sizes[-1], )   # gera lista com eventuais repetições
+        print("OK")
+
+        # Ordenar a lista se isso foi solicitado
+        if should_sort:
+            fulllist = sorted(fulllist)
 
     # Executar o algoritmo especificado com lista de números com cada uma das dimensões indicadas em 'input_sizes'.
     for n in input_sizes:
-        # Usar sublista com dimensão especiificada
-        randomlist = fulllist[:n]
 
-        print(f"A invocar '{algorithm.__name__}' com lista de dimensão {n:n}...", end=" ")
+        if setup:
+            setup(n)
+
+        if use_number_list:
+            # Usar sublista com dimensão especiificada
+            randomlist = fulllist[:n]
+            print(f"A invocar '{algorithm.__name__}' com lista de dimensão {n:n}...", end=" ")
+        else:
+            print(f"A invocar '{algorithm.__name__}' com n={n:n}...", end=" ")
+
         # Medir o tempo de execução do nosso algoritmo quando executa com a lista de números gerada antes.
         start = timeit.default_timer()
-        algorithm(randomlist)
+        if use_number_list:
+            algorithm(randomlist)
+        else:
+            algorithm(n)
         stop = timeit.default_timer()
         print(f"OK ({round(stop - start, 4)} seg.)")
 
         # Guardar o tempo de execução na lista 'times'
-        times.append(stop - start)
+        if adjust_for_length:
+            times.append((stop - start) / (n/input_sizes[0]))
+        else:
+            times.append((stop - start) / 1)
 
     # Usar o pandas para gerar uma tabela (DataFrame) com os dados a mostrar no gráfico.
     # 'input_sizes' no eixo dos x, e 'times' no eixo dos y.
@@ -110,7 +131,10 @@ def profile_algorithm(algorithm, input_sizes, algorithm_name="Nome do Algoritmo"
                      title=algorithm_name,
                      labels={"n": x_axis_label, "time": y_axis_label})
     fig.update_traces(marker_size=10)
-    fig.show()
+    if min(times) < 1:
+        fig.update_yaxes(range=[-0.01, 1])
+    #fig.show()
+    fig.write_html('fig.html', auto_open=True)
 
     return times
 
@@ -121,7 +145,7 @@ locale.setlocale(locale.LC_ALL, 'pt')
 if __name__ == '__main__':
     # Dimensões das listas de números a usar para invocar o algoritmo especificado.
     ns = [1000000, 2000000, 3000000, 4000000, 5000000, 6000000, 7000000, 8000000, 9000000,
-          10000000, 11000000, 12000000, 13000000, 14000000, 15000000, 16000000, 17000000, 18000000, 19000000,
+          #10000000, 11000000, 12000000, 13000000, 14000000, 15000000, 16000000, 17000000, 18000000, 19000000,
           #20000000, 21000000, 22000000, 23000000, 24000000, 25000000, 26000000, 27000000, 28000000, 29000000,
           #30000000, 31000000, 32000000, 33000000, 34000000, 35000000, 36000000, 37000000, 38000000, 39000000,
          ]

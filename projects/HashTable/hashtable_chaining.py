@@ -99,7 +99,7 @@ class HashTable:
             if str(pair.key) != str(key):
                 l2.append(pair)
         self.entries[i] = None if len(l2) == 0 else l2
-        self.size += 1
+        self.size -= 1
 
     def __len__(self):
         return self.size
@@ -131,7 +131,7 @@ class HashTable:
 
 
 def main():
-    DIM_HASH_TABLE = 100
+    DIM_HASH_TABLE = 10
     MAX_ITEMS      = 100
 
     print("*******************************************")
@@ -143,7 +143,8 @@ def main():
     # Insere MAX_ITEMS pares chave/valor
     for i in range(MAX_ITEMS):
         ht.put("KEY" + str(i), "VALUE " + str(i))
-        assert ht.get("KEY" + str(i))
+        assert ht.get("KEY" + str(i)) == "VALUE " + str(i)
+    assert len(ht) == MAX_ITEMS
     print("* Inserção de valores com sucesso!        *")
 
     #############################################################################################
@@ -160,6 +161,7 @@ def main():
     # Altera os valores associados às chaves
     for i in range(MAX_ITEMS):
         ht.put("KEY" + str(i), "MODIFIED VALUE " + str(i))
+    assert len(ht) == MAX_ITEMS
     print("* Modificação de valores com sucesso!     *")
 
     # Assegura que todos os pares chave/valor estão na tabela de hash e não há duplicados
@@ -172,6 +174,7 @@ def main():
     for i in range(MAX_ITEMS):
         ht.delete("KEY" + str(i))
         assert ht.get("VALUE " + str(i)) is None
+    assert len(ht) == 0
     print("* Valores apagados com sucesso!           *")
 
     print("*******************************************")

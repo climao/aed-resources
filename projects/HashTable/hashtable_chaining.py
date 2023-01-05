@@ -1,5 +1,6 @@
 #
 # Simple hash table implementation.
+# Uses chaining for collision resolution.
 #
 # Author: CJL
 #
@@ -118,7 +119,7 @@ def main():
     ht.print()
 
     print("******************************************")
-    print("* Concluido com sucesso                  *")
+    print("* Testes concluidos com sucesso.         *")
     print("******************************************")
 
 if __name__ == "__main__":

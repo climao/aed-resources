@@ -6,45 +6,74 @@
 #
 
 class Pair:
-    # Time O(1), Space (1)
+
     def __init__(self, key, value):
+        """
+        Construtor. O(1)
+
+        :param key: Chave
+        :param value: Valor
+        """
         self.key = key
         self.value = value
 
-    # Verifica se par (k,v) é igual a outro, comparando os valores de k e v, não os objetos, Time O(1), Space O(1)
-    def equals(self, other_pair):
-        if str(self.key) != str(other_pair.key):
-            return False
-        return str(self.value) == str(other_pair.value)
-
-    # Redefine str(), Time O(1), Space O(1)
     def __str__(self):
+        """
+        Redefine str(). O(1)
+
+        :return: representação de um Pair como uma string.
+        """
         return "(" + str(self.key) + ", " + str(self.value) + ")"
 
 
 class HashTable:
     def __init__(self, capacity):
-        self.max_size = capacity
-        self.entries = [None] * self.max_size
+        """
+        Construtor. O(1)
 
-    # Função de Hash. Calcula código de hash a partir de uma chave, Time O(1), Space O(1)
+        :param capacity: dimensão da tabela de hash.
+        """
+        self.max_size = capacity                # Hash table capacity
+        self.entries = [None] * self.max_size   # Hash table entries. This is faster than a list of empty lists.
+        self.size = 0                           # Current hash table size.
+
     def hash_func(self, key):
+        """
+        Calcula código de hash a partir de uma chave. O(1)
+        Função de Hash h2(h1(k)) -> h1 = Código de hash; h2 -> função de compressão
+
+        :param key: Chave
+        :return: Código de hash.
+        """
         return sum(index*ord(char) for index, char in enumerate(repr(key).lstrip("'"), start=1)) % self.max_size
 
-    # Adiciona entrada na tabela de hash, Time O(1), Space O(1)
     def put(self, key, value):
+        """
+        Adiciona entrada na tabela de hash. O(n), n é a dimensão da lista na entrada
+
+        :param key: Chave.
+        :param value: Valor.
+        :return: None.
+        """
         i = self.hash_func(key)
         if self.entries[i] is None:
-            self.entries[i] = []
-        l = self.entries[i]    # Devolve valor a partir da chave, Time O(n), Space O(1), n é a dimensão da lista na entrada
-        pair = Pair(key, value)
-        for p in l:
-            if p.key == key:
-                p.value = value
-                return
-        l.append(pair)
+            self.entries[i] = [Pair(key, value)]
+        else:
+            l = self.entries[i]
+            for p in l:
+                if p.key == key:
+                    p.value = value
+                    return
+            l.append(Pair(key, value))
+        self.size += 1
 
     def get(self, key):
+        """
+        Devolve o valor do item com a chave especificada. , Time O(n), n é a dimensão da lista na entrada.
+
+        :param key: Chave.
+        :return: valor associado à chave especificada ou None se não existir.
+        """
         i = self.hash_func(key)
         if self.entries[i] is None:
             return None
@@ -54,8 +83,13 @@ class HashTable:
                 return pair.value
         return None
 
-    # Apaga entrada definida pela chave especificada, Time O(n), Space O(n), n é a dimensão da lista na entrada
     def delete(self, key):
+        """
+        Apaga entrada definida pela chave especificada. O(n), n é a dimensão da lista na entrada.
+
+        :param key: Chave.
+        :return: None
+        """
         i = self.hash_func(key)
         if self.entries[i] is None:
             return
@@ -66,16 +100,28 @@ class HashTable:
                 l2.append(pair)
         self.entries[i] = None if len(l2) == 0 else l2
 
-    # Printa toda a tabela de hash chamando print_list, Time O(m*n), Space O(1),
-    # m é o número de entadas, n é a dimensão máxima da lista
+    def __len__(self):
+        return self.size
+
     def print(self) :
+        """
+        Escreve na consola toda a tabela de hash chamando print_list.
+        O(m*n), m é o número de entradas, n é a dimensão da maior lista.
+
+        :return: None
+        """
         for i in range(0 , self.max_size):
             l = self.entries[i]
             if l is not None:
                 self.print_list(l)
 
-    # Printa a lista numa entrada, Time O(n), Space O(1), n é a dimensão da lista
     def print_list(self, l):
+        """
+        Escreve conteúdo de uma lista. O(n), n é a dimensão da lista.
+
+        :param l: lista
+        :return: None.
+        """
         if len(l) == 0:
             return
         for pair in l:
@@ -87,40 +133,50 @@ def main():
     DIM_HASH_TABLE = 100
     MAX_ITEMS      = 100
 
-    print("******************************************")
-    print("* A testar implmentação da Hash Table... *")
-    print("******************************************")
+    print("*******************************************")
+    print("* A testar implementação da Hash Table... *")
+    print("*******************************************")
 
     ht = HashTable(DIM_HASH_TABLE)
 
-    # Insere MAX_ITEMS pares chave/valore
+    # Insere MAX_ITEMS pares chave/valor
     for i in range(MAX_ITEMS):
         ht.put("KEY" + str(i), "VALUE " + str(i))
+        assert ht.get("KEY" + str(i))
+    print("* Inserção de valores com sucesso!        *")
 
-    # Assegura que todos os pares chave/valor estão na tabela de hash
+    #############################################################################################
+    # Descomentar linha seguinte para mostrar entradas da tabela de hash. Permite ver colisões. #
+    #############################################################################################
+    #ht.print()
+
+    # Assegura que todos os pares chave/valor inseridos estão na tabela de hash
     for i in range(MAX_ITEMS):
         v = ht.get("KEY" + str(i))
         assert v == "VALUE " + str(i)
+    print("* Pesquisa de chaves com sucesso!         *")
 
-    # Alterar os valores associados às chaves
+    # Altera os valores associados às chaves
     for i in range(MAX_ITEMS):
         ht.put("KEY" + str(i), "MODIFIED VALUE " + str(i))
+    print("* Modificação de valores com sucesso!     *")
 
-    # Assegura que todos os pares chave/valor estão na tabela de hash
+    # Assegura que todos os pares chave/valor estão na tabela de hash e não há duplicados
     for i in range(MAX_ITEMS):
         v = ht.get("KEY" + str(i))
         assert v == "MODIFIED VALUE " + str(i)
+    print("* Chaves não podem ser duplicadas!        *")
 
-    # Apaga todas as chaves e garante que desaparecem da tabela de hash
+    # Apaga todas as entradas e garante que foram eliminadas da tabela de hash
     for i in range(MAX_ITEMS):
         ht.delete("KEY" + str(i))
         assert ht.get("VALUE " + str(i)) is None
+    print("* Valores apagados com sucesso!           *")
 
-    ht.print()
+    print("*******************************************")
+    print("* Testes concluidos com sucesso.          *")
+    print("*******************************************")
 
-    print("******************************************")
-    print("* Testes concluidos com sucesso.         *")
-    print("******************************************")
 
 if __name__ == "__main__":
     main()

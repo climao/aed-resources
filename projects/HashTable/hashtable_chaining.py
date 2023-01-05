@@ -99,6 +99,7 @@ class HashTable:
             if str(pair.key) != str(key):
                 l2.append(pair)
         self.entries[i] = None if len(l2) == 0 else l2
+        self.size += 1
 
     def __len__(self):
         return self.size

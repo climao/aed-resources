@@ -73,7 +73,7 @@ def get_unique_names_using_hashtable_chaining(phone_book):
 #     :param phone_book: Sequência de pares (nome, nº de telefone)
 #     :return: número de nomes únicos na lista telefónica.
 #     """
-#     unique_names = HashTableProbing(phone_book)
+#     unique_names = HashTableProbing(len(phone_book))
 #     for name, phonenumber in phone_book:
 #         first_name, last_name = name.split(" ", 1)
 #         unique_names.put(first_name, first_name)

@@ -49,19 +49,21 @@ def test_tree(n):
     global atree
 
     for i in range(1, 10000):
-        atree.exists_i(n)
+        atree.exists_i(n)     # Pesquisa valor não existente
 
 
-profile.profile_algorithm(test_tree,
-                          [100000, 200000, 300000, 400000, 500000],
-                          "Árvores de Pesquisa Binária - Pesquisa em árvore com valores aleatórios.",
+# Esperamos que o algoritmo seja O(lg n)
+profile.profile_algorithm(algorithm=test_tree,
+                          input_sizes=[100000, 200000, 300000, 400000, 500000],
+                          algorithm_name="Árvores de Pesquisa Binária - Pesquisa em árvore com valores inseridos aleatóriamente.",
                           use_number_list=False,
                           setup=setup_random_tree,
                           adjust_for_length=False)
 
-profile.profile_algorithm(test_tree,
-                          [10000, 20000, 30000, 40000, 50000],
-                          "Árvores de Pesquisa Binária - Pesquisa em árvore com valores ordenados.",
+# Na prática a árvore será uma lista, pelo que esperamos que o algoritmo seja O(n)
+profile.profile_algorithm(algorithm=test_tree,
+                          input_sizes=[10000, 20000, 30000, 40000, 50000],
+                          algorithm_name="Árvores de Pesquisa Binária - Pesquisa em árvore com valores inseridos por ordem.",
                           use_number_list=False,
                           setup=setup_ordered_tree,
                           adjust_for_length=False)

@@ -225,7 +225,7 @@ class SearchTree:
 
     def traverse_tree(self, values):
         """
-        Percorre (inline) todos os elementos na árvore.
+        Percorre (inorder) todos os elementos na árvore.
 
         :param values: Lista na qual adicionar elementos da árvore, por ordem.
         :return: Lista de valores na árvore.
@@ -242,6 +242,7 @@ class SearchTree:
 def main():
     import math
     import random
+    from drawtree import drawTree
 
     MAX_LEN = 30
 
@@ -273,6 +274,7 @@ def main():
         assert tree1.exists_i(i)
     assert tree1.traverse_tree([]) == list(olist)   # O resultado da travessia devem ser valores ordenados
     print(f"Tree1 (inorder): {tree1.traverse_tree([])}")
+    drawTree(tree1)
 
     #############################################################################
     # Apagar elementos da lista por uma ordem aleatória        .                #
@@ -305,6 +307,7 @@ def main():
         assert tree2.exists_i(i)
     assert tree2.traverse_tree([]) == list(olist)   # Resultado da travessia devem ser valores por ordem
     print(f"Tree2 (inorder): {tree2.traverse_tree([])}")
+    drawTree(tree2)
 
     #############################################################################
     # Apagar elementos da lista por uma ordem aleatória        .                #
@@ -317,7 +320,7 @@ def main():
     assert tree2 is None                # Removido o último elemento a raiz deve ser None.
 
     print("########################################################################")
-    print("#  Testes concluídos com sucesso.                                       #")
+    print("#  Testes concluídos com sucesso.                                      #")
     print("########################################################################")
 
 
